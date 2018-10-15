@@ -19,7 +19,7 @@ public class HelloWorldTest {
 
     @Value
     private class HelloWorld {
-        String message;
+        String  message;
     }
 
 }
