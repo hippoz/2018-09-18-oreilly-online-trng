@@ -44,35 +44,51 @@ public final class KitchenOrder implements Aggregate {
     }
 
     public boolean isNew() {
-        return false;
+        return state == State.NEW;
     }
 
     void startPrep() {
+        if (this.state != State.NEW) {
+            throw new IllegalStateException("Only a NEW KitchenOrder can begin prepping");
+        }
+        this.state = State.PREPPING;
     }
 
     boolean isPrepping() {
-        return false;
+        return this.state == State.PREPPING;
     }
 
     void startBake() {
+        if (this.state != State.PREPPING) {
+            throw new IllegalStateException("Only a PREPPING KitchenOrder can begin baking");
+        }
+        this.state = State.BAKING;
     }
 
     boolean isBaking() {
-        return false;
+        return state == State.BAKING;
     }
 
     void startAssembly() {
+        if (this.state != State.BAKING) {
+            throw new IllegalStateException("Only a BAKING KitchenOrder can begin ASSEMBLING");
+        }
+        this.state = State.ASSEMBLING;
     }
 
     boolean hasStartedAssembly() {
-        return false;
+        return state == State.ASSEMBLING;
     }
 
     void finishAssembly() {
+        if (this.state != State.ASSEMBLING) {
+            throw new IllegalStateException("Only a ASSEMBLING KitchenOrder can begin finishAssembly");
+        }
+        this.state = State.ASSEMBLED;
     }
 
     boolean hasFinishedAssembly() {
-        return false;
+        return this.state == State.ASSEMBLED;
     }
 
     @Override
