@@ -1,5 +1,6 @@
 package com.mattstine.dddworkshop.pizzashop.kitchen;
 
+import com.mattstine.dddworkshop.pizzashop.infrastructure.events.adapters.InProcessEventLog;
 import com.mattstine.dddworkshop.pizzashop.infrastructure.events.ports.EventLog;
 import com.mattstine.dddworkshop.pizzashop.infrastructure.events.ports.Topic;
 import com.mattstine.dddworkshop.pizzashop.infrastructure.repository.ports.Aggregate;
@@ -98,7 +99,11 @@ public final class KitchenOrder implements Aggregate {
 
     @Override
     public KitchenOrder identity() {
-        return null;
+        return KitchenOrder.builder().
+                eventLog(InProcessEventLog.IDENTITY).
+                onlineOrderRef(OnlineOrderRef.IDENTITY).
+                ref(KitchenOrderRef.IDENTITY).
+                build();
     }
 
     @Override
@@ -122,8 +127,30 @@ public final class KitchenOrder implements Aggregate {
     private static class Accumulator implements BiFunction<KitchenOrder, KitchenOrderEvent, KitchenOrder> {
 
         @Override
-        public KitchenOrder apply(KitchenOrder kitchenOrder, KitchenOrderEvent kitchenOrderEvent) {
-            return null;
+        public KitchenOrder apply(KitchenOrder kitchenOrder, KitchenOrderEvent evt) {
+            if (evt instanceof KitchenOrderAddedEvent) {
+                KitchenOrderAddedEvent koae = (KitchenOrderAddedEvent) evt;
+                return KitchenOrder.
+                        builder().
+                        ref(koae.getRef()).
+                        onlineOrderRef(koae.getState().onlineOrderRef).
+                        eventLog(InProcessEventLog.instance()).
+                        pizzas(koae.getState().pizzas).
+                        build();
+            } else if (evt instanceof  KitchenOrderPrepStartedEvent) {
+                kitchenOrder.startPrep();
+                return kitchenOrder;
+            } else if (evt instanceof  KitchenOrderBakeStartedEvent) {
+                kitchenOrder.startBake();
+                return kitchenOrder;
+            }  else if (evt instanceof  KitchenOrderAssemblyStartedEvent) {
+                kitchenOrder.startAssembly();
+                return kitchenOrder;
+            }  else if (evt instanceof  KitchenOrderAssemblyFinishedEvent) {
+                kitchenOrder.finishAssembly();
+                return kitchenOrder;
+            }
+            throw new IllegalArgumentException("Unknown KitchenOrderEvent:" + evt.getClass());
         }
 
     }

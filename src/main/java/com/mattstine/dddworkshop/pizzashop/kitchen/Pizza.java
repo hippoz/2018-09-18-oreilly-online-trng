@@ -1,5 +1,6 @@
 package com.mattstine.dddworkshop.pizzashop.kitchen;
 
+import com.mattstine.dddworkshop.pizzashop.infrastructure.events.adapters.InProcessEventLog;
 import com.mattstine.dddworkshop.pizzashop.infrastructure.events.ports.EventLog;
 import com.mattstine.dddworkshop.pizzashop.infrastructure.events.ports.Topic;
 import com.mattstine.dddworkshop.pizzashop.infrastructure.repository.ports.Aggregate;
@@ -98,7 +99,12 @@ public final class Pizza implements Aggregate {
 
     @Override
     public Pizza identity() {
-        return null;
+        return Pizza.builder().
+                eventLog(InProcessEventLog.IDENTITY).
+                kitchenOrderRef(KitchenOrderRef.IDENTITY).
+                ref(PizzaRef.IDENTITY).
+                size(Size.IDENTITY).
+                build();
     }
 
     @Override
@@ -131,8 +137,29 @@ public final class Pizza implements Aggregate {
     private static class Accumulator implements BiFunction<Pizza, PizzaEvent, Pizza> {
 
         @Override
-        public Pizza apply(Pizza pizza, PizzaEvent pizzaEvent) {
-            return null;
+        public Pizza apply(Pizza pizza, PizzaEvent evt) {
+            if (evt instanceof PizzaAddedEvent) {
+                PizzaAddedEvent pae = (PizzaAddedEvent) evt;
+                return Pizza.builder().
+                        size(pae.getState().getSize()).
+                        ref(pae.getRef()).
+                        kitchenOrderRef(pae.getState().getKitchenOrderRef()).
+                        eventLog(InProcessEventLog.instance()).
+                        build();
+            } else if (evt instanceof PizzaPrepStartedEvent) {
+                pizza.startPrep();
+                return pizza;
+            } else if (evt instanceof PizzaPrepFinishedEvent) {
+                pizza.finishPrep();
+                return pizza;
+            } else if (evt instanceof PizzaBakeStartedEvent) {
+                pizza.startBake();
+                return pizza;
+            } else if (evt instanceof PizzaBakeFinishedEvent) {
+                pizza.finishBake();
+                return pizza;
+            }
+            throw new IllegalArgumentException("Unknown PizzaEvent: " + evt.getClass());
         }
     }
 
