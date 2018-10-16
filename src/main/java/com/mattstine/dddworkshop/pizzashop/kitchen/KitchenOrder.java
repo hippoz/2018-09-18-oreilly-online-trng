@@ -138,16 +138,16 @@ public final class KitchenOrder implements Aggregate {
                         pizzas(koae.getState().pizzas).
                         build();
             } else if (evt instanceof  KitchenOrderPrepStartedEvent) {
-                kitchenOrder.startPrep();
+                kitchenOrder.state = State.PREPPING;
                 return kitchenOrder;
             } else if (evt instanceof  KitchenOrderBakeStartedEvent) {
-                kitchenOrder.startBake();
+                kitchenOrder.state = State.BAKING;
                 return kitchenOrder;
             }  else if (evt instanceof  KitchenOrderAssemblyStartedEvent) {
-                kitchenOrder.startAssembly();
+                kitchenOrder.state = State.ASSEMBLING;
                 return kitchenOrder;
             }  else if (evt instanceof  KitchenOrderAssemblyFinishedEvent) {
-                kitchenOrder.finishAssembly();
+                kitchenOrder.state = State.ASSEMBLED;
                 return kitchenOrder;
             }
             throw new IllegalArgumentException("Unknown KitchenOrderEvent:" + evt.getClass());

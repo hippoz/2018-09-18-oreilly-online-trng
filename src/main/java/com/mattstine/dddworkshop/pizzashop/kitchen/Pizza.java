@@ -147,16 +147,16 @@ public final class Pizza implements Aggregate {
                         eventLog(InProcessEventLog.instance()).
                         build();
             } else if (evt instanceof PizzaPrepStartedEvent) {
-                pizza.startPrep();
+                pizza.state = State.PREPPING;
                 return pizza;
             } else if (evt instanceof PizzaPrepFinishedEvent) {
-                pizza.finishPrep();
+                pizza.state = State.PREPPED;
                 return pizza;
             } else if (evt instanceof PizzaBakeStartedEvent) {
-                pizza.startBake();
+                pizza.state = State.BAKING;
                 return pizza;
             } else if (evt instanceof PizzaBakeFinishedEvent) {
-                pizza.finishBake();
+                pizza.state = State.BAKED;
                 return pizza;
             }
             throw new IllegalArgumentException("Unknown PizzaEvent: " + evt.getClass());
