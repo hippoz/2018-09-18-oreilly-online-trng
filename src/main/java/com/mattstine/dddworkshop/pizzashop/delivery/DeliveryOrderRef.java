@@ -1,5 +1,6 @@
 package com.mattstine.dddworkshop.pizzashop.delivery;
 
+import com.mattstine.dddworkshop.pizzashop.infrastructure.domain.services.RefStringGenerator;
 import com.mattstine.dddworkshop.pizzashop.infrastructure.repository.ports.Ref;
 import lombok.Value;
 
@@ -8,20 +9,22 @@ import lombok.Value;
  */
 @Value
 public final class DeliveryOrderRef implements Ref {
-	public static final DeliveryOrderRef IDENTITY = new DeliveryOrderRef("");
-	private String reference = null;
 
-	@SuppressWarnings("WeakerAccess")
+	public static final DeliveryOrderRef IDENTITY = new DeliveryOrderRef("");
+
+	private String reference;
+
 	public DeliveryOrderRef() {
-		// Use RefStringGenerator here!
+		this(RefStringGenerator.generateRefString());
 	}
 
 	@SuppressWarnings("SameParameterValue")
 	private DeliveryOrderRef(String reference) {
+		this.reference = reference;
 	}
 
 	@Override
 	public String getReference() {
-		return null;
+		return reference;
 	}
 }
